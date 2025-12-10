@@ -379,7 +379,7 @@ def main():
     # --- GitHub 部署路徑設定 ---
     current_dir = os.path.dirname(os.path.abspath(__file__))
     # 根據你的需求修改路徑
-    FILE_PATH = os.path.join(current_dir, 'resource', 'anonymized_file0115.csv')
+    FILE_PATH = os.path.join(current_dir, '../src/resource', 'anonymized_file0115.csv')
 
     # 測試用: 如果上一層找不到，試試看當前目錄 (方便本地測試)
     if not os.path.exists(FILE_PATH):
@@ -457,7 +457,7 @@ def main():
         st.subheader("📉 記憶鞏固趨勢分析")
         col_ctrl1, col_ctrl2 = st.columns([1, 3])
         with col_ctrl1:
-            # 直接放控制項即可，CSS 會自動處理輸入框的樣式
+            # CSS 修正後的控制項 (不包 div)
             y_opt = st.selectbox("分析指標 (Y軸)", [col_score, '擷取訊息正確率', '發展解釋正確率'], key="tab2_y_opt")
             split_diff = st.toggle("依難易度分層", value=True, key="tab2_diff_toggle")
 
@@ -466,7 +466,6 @@ def main():
 
             if split_diff and col_difficulty in df.columns:
                 diff_order = ['易', '中', '難']
-                # 霓虹配色
                 colors = {'易': '#00ff87', '中': '#ffdd00', '難': '#ff0055'}
                 present_diffs = [d for d in diff_order if d in df[col_difficulty].unique()]
                 agg = df.groupby(['lag_bin_mid', col_difficulty])[y_opt].mean().reset_index()
@@ -474,15 +473,16 @@ def main():
                 sns.lineplot(data=agg, x='lag_bin_mid', y=y_opt, hue=col_difficulty,
                              hue_order=present_diffs, palette=colors,
                              marker='o', linewidth=2.5, ax=ax)
-                # 設定 Legend 文字顏色
-                if ax.legend_:
-                    plt.setp(ax.get_legend().get_texts(), color='#E0E0E0', fontproperties=MY_FONT)
             else:
                 agg = df.groupby('lag_bin_mid')[y_opt].mean().reset_index()
                 sns.lineplot(data=agg, x='lag_bin_mid', y=y_opt, marker='o',
-                             color='#00c6ff', linewidth=3, label="全體平均", ax=ax, fontproperties=MY_FONT)
-                if ax.legend_:
-                    plt.setp(ax.get_legend().get_texts(), color='#E0E0E0')
+                             color='#00c6ff', linewidth=3, label="全體平均", ax=ax)
+
+            # --- 【修正】強制設定圖例字體 ---
+            if ax.get_legend():
+                # 使用 prop=MY_FONT 重新設定圖例，並保持文字為亮色
+                plt.setp(ax.get_legend().get_texts(), fontproperties=MY_FONT, color='#E0E0E0')
+                plt.setp(ax.get_legend().get_title(), fontproperties=MY_FONT, color='#E0E0E0')
 
             ax.set_xticks(np.arange(0, 25, 3))
             ax.set_xlabel("練習延遲時間 (小時)", fontproperties=MY_FONT)
