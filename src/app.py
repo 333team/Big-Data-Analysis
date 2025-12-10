@@ -241,7 +241,7 @@ def main():
     st.markdown('<div class="sub-title">24H Learning Consolidation Analytics Dashboard</div>', unsafe_allow_html=True)
 
     # --- 【修改點 2】設定固定路徑並檢查 ---
-    FILE_PATH = '../resource/anonymized_file0115.csv'
+    FILE_PATH = 'https://github.com/333team/Big-Data-Analysis/blob/6f896eb539f65c08bbb1f6083a4e27ffaa25ff72/resource/anonymized_file0115.csv'
 
     if not os.path.exists(FILE_PATH):
         st.error(f"❌ 找不到資料檔案：`{FILE_PATH}`")
