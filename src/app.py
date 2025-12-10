@@ -332,7 +332,6 @@ def main():
             if MY_FONT: ax.legend(prop=MY_FONT)
             st.pyplot(fig)
 
-        # --- 【修正】補回圖表解讀 ---
         with st.expander("💡 圖表解讀"):
             st.markdown("""
             *   **趨勢意義**：觀察曲線是否隨時間上升。若上升，代表存在「記憶鞏固」效應；若持平或下降，則可能代表遺忘發生或缺乏複習效益。
@@ -372,7 +371,6 @@ def main():
             if MY_FONT: ax2.legend(prop=MY_FONT)
             st.pyplot(fig2)
 
-        # --- 【修正】補回圖表解讀 ---
         with st.expander("💡 圖表解讀"):
             st.markdown("""
             *   **認知負荷**：答題時間可視為認知負荷的代理指標。
@@ -426,7 +424,6 @@ def main():
             else:
                 st.info("請選擇向度")
 
-        # --- 【修正】補回圖表解讀 ---
         with st.expander("💡 圖表解讀"):
             st.markdown("""
             *   **行為模式對比**：
@@ -511,6 +508,19 @@ def main():
                     ax_cm.set_ylabel('真實情況', fontproperties=MY_FONT, fontsize=12)
                     ax_cm.set_xlabel('模型判斷', fontproperties=MY_FONT, fontsize=12)
                 st.pyplot(fig_cm)
+
+            # --- 【修正】補回模型洞察解讀 ---
+            with st.expander("💡 模型洞察：什麼決定了學習成敗？", expanded=True):
+                st.markdown("""
+                **1. 關鍵影響因子 (Feature Importance)**
+                *   **學生程度 (User Ability)**：通常是預測力最強的特徵，反映「過去表現」對未來的影響。
+                *   **練習延遲 (Lag Hours)**：在排除資質後，**「時間」是影響成敗最重要的可控變因**。
+                *   **答題耗時 (Duration)**：過短可能代表猜測，過長可能代表卡關，對預測亦有幫助。
+
+                **2. 混淆矩陣 (Confusion Matrix)**
+                *   **召回率 (Recall)**：請關注右下角深色區塊。這代表模型成功抓出的「真正需要輔導」學生。
+                *   **應用價值**：只要能準確抓出高風險學生，系統就能及時發出警示，發揮「學習安全網」功能。
+                """)
 
             st.divider()
             st.subheader("🔮 單一學生即時診斷")
