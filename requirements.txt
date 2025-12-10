@@ -1,4 +1,4 @@
-streamlit==1.52.1
+streamlit==1.50.0
 pandas==2.3.3
 statsmodels==0.14.6
 scikit-learn==1.8.0
