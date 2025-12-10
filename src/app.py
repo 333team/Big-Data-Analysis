@@ -22,7 +22,7 @@ warnings.filterwarnings('ignore')
 # ==============================================================================
 
 st.set_page_config(
-    page_title="教育大數據分析：24小時線性版",
+    page_title="教育大數據分析：24小時最終版",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -71,7 +71,7 @@ MY_FONT = set_plot_style()
 
 def load_and_preprocess_data(uploaded_file, remove_outliers=False):
     """
-    讀取並清理資料，針對 0~24 小時進行切分
+    讀取並清理資料，針對 0~24 小時進行高密度切分
     """
     stats = {}
 
@@ -143,8 +143,8 @@ def load_and_preprocess_data(uploaded_file, remove_outliers=False):
 
         df['ability_group'] = df[col_user].apply(get_group)
 
-        # 8. 自動分箱 (24小時切分)
-        # 這裡維持細切，但在線性圖表上，前幾小時的點會擠在一起，這是正常的物理時間呈現
+        # 8. 自動分箱 (24小時高密度切分)
+        # 前 6 小時每小時切，6~24小時每 3 小時切
         custom_bins = [
             0, 1, 2, 3, 4, 5, 6,  # 0~6小時
             9, 12, 15, 18, 21, 24  # 6~24小時
@@ -188,8 +188,8 @@ def main():
     col_difficulty = '難易度'
     col_task = '任務名稱'
 
-    st.markdown("## 📊 教育數據分析：24小時黃金窗口 (線性時間軸)")
-    st.info("本系統鎖定 **0 ~ 24 小時** 的數據，X 軸採用均勻時間顯示。")
+    st.markdown("## 📊 教育數據分析：24小時黃金窗口 (線性版)")
+    st.info("本系統鎖定 **0 ~ 24 小時** 的數據，使用線性軸呈現晝夜節律對學習的影響。")
 
     uploaded_file = st.sidebar.file_uploader("📂 上傳 CSV 資料檔", type="csv")
 
@@ -260,16 +260,16 @@ def main():
         else:
             agg_data = df.groupby('lag_bin_mid')[y_axis_option].agg(['mean', 'count']).reset_index()
             ax.plot(agg_data['lag_bin_mid'], agg_data['mean'], color='royalblue', lw=2, marker='o')
-            for x, y, c in zip(agg_data['lag_bin_mid'], agg_data['mean'], agg_data['count']):
-                ax.text(x, y + 0.005, f"{y:.2f}\n(n={c})", fontsize=8, ha='center', va='bottom')
 
-        # --- 【修改點】X 軸設定為線性 ---
-        # 移除 ax.set_xscale('log')
-        # 設定均勻刻度：每 3 小時一格
-        linear_ticks = np.arange(0, 25, 3)  # [0, 3, 6, 9, 12, 15, 18, 21, 24]
+            # --- n 已移除，只顯示數值 ---
+            for x, y in zip(agg_data['lag_bin_mid'], agg_data['mean']):
+                ax.text(x, y + 0.005, f"{y:.2f}", fontsize=9, ha='center', va='bottom')
+
+        # 線性軸設定 (每3小時一格)
+        linear_ticks = np.arange(0, 25, 3)  # [0, 3, 6... 24]
         ax.set_xticks(linear_ticks)
 
-        # Y 軸縮放 (若希望波動明顯，可改為 (0.3, 0.7))
+        # Y 軸縮放 0~1
         ax.set_ylim(0, 1.1)
 
         ax.set_title(f"24小時記憶鞏固趨勢：{y_axis_option}", fontproperties=MY_FONT, fontsize=16)
@@ -301,7 +301,7 @@ def main():
             agg = df.groupby('lag_bin_mid')[col_duration].median().reset_index()
             ax2.plot(agg['lag_bin_mid'], agg[col_duration], color='orange', marker='s')
 
-        # --- 【修改點】X 軸設定為線性 ---
+        # 線性軸設定
         ax2.set_xticks(np.arange(0, 25, 3))
 
         ax2.set_title("24小時認知負荷 (反應時間)", fontproperties=MY_FONT, fontsize=16)
@@ -323,8 +323,7 @@ def main():
                 agg = sub.groupby('lag_bin_mid')[col_score].mean().reset_index()
                 ax3.plot(agg['lag_bin_mid'], agg[col_score], marker='o', label=group)
 
-            # 線性軸
-            ax3.set_xticks(np.arange(0, 25, 6))  # 每6小時一格
+            ax3.set_xticks(np.arange(0, 25, 6))
             ax3.set_ylim(0, 1.1)
             ax3.legend(prop=MY_FONT)
             ax3.grid(True, alpha=0.3)
@@ -339,7 +338,6 @@ def main():
                     if col in df.columns:
                         agg = df.groupby('lag_bin_mid')[col].mean().reset_index()
                         ax4.plot(agg['lag_bin_mid'], agg[col], marker='.', label=col.replace('正確率', ''))
-                # 線性軸
                 ax4.set_xticks(np.arange(0, 25, 6))
                 ax4.set_ylim(0, 1.1)
                 ax4.legend(prop=MY_FONT)
