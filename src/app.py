@@ -444,8 +444,15 @@ def main():
                 sns.lineplot(data=agg, x='lag_bin_mid', y=col_score, marker='o', label=g, color=c, linewidth=2, ax=ax3)
 
             ax3.set_xticks(np.arange(0, 25, 6))
-            ax3.set_xlabel("小時", fontproperties=MY_FONT)
-            if MY_FONT: ax3.legend(prop=MY_FONT)
+            ax3.set_xlabel("練習延遲時間 (小時)", fontproperties=MY_FONT)
+
+            # --- 【修正點 1】強制設定 Y 軸標籤字體 ---
+            ax3.set_ylabel("平均正確率", fontproperties=MY_FONT)
+
+            # --- 【修正點 2】強制設定圖例字體 ---
+            if MY_FONT:
+                ax3.legend(prop=MY_FONT)
+
             st.pyplot(fig3)
 
         # 右邊：知識向度
@@ -473,8 +480,15 @@ def main():
                     sns.lineplot(data=agg, x='lag_bin_mid', y=col, marker=marker, label=label_name, linewidth=2, ax=ax4)
 
                 ax4.set_xticks(np.arange(0, 25, 6))
-                ax4.set_xlabel("小時", fontproperties=MY_FONT)
-                if MY_FONT: ax4.legend(prop=MY_FONT)
+                ax4.set_xlabel("練習延遲時間 (小時)", fontproperties=MY_FONT)
+
+                # --- 【修正點 3】強制設定 Y 軸標籤字體 ---
+                ax4.set_ylabel("平均正確率", fontproperties=MY_FONT)
+
+                # --- 【修正點 4】強制設定圖例字體 ---
+                if MY_FONT:
+                    ax4.legend(prop=MY_FONT)
+
                 ax4.grid(True, alpha=0.3)
                 st.pyplot(fig4)
             else:
