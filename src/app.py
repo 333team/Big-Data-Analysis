@@ -473,7 +473,7 @@ def main():
                 agg = agg[agg[col_difficulty].isin(present_diffs)]
                 sns.lineplot(data=agg, x='lag_bin_mid', y=y_opt, hue=col_difficulty,
                              hue_order=present_diffs, palette=colors,
-                             marker='o', linewidth=2.5, ax=ax)
+                             marker='o', linewidth=2.5, ax=ax, fontproperties=MY_FONT)
                 # 設定 Legend 文字顏色
                 if ax.legend_:
                     plt.setp(ax.get_legend().get_texts(), color='#E0E0E0', fontproperties=MY_FONT)
