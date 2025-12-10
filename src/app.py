@@ -480,7 +480,7 @@ def main():
             else:
                 agg = df.groupby('lag_bin_mid')[y_opt].mean().reset_index()
                 sns.lineplot(data=agg, x='lag_bin_mid', y=y_opt, marker='o',
-                             color='#00c6ff', linewidth=3, label="全體平均", ax=ax)
+                             color='#00c6ff', linewidth=3, label="全體平均", ax=ax, fontproperties=MY_FONT)
                 if ax.legend_:
                     plt.setp(ax.get_legend().get_texts(), color='#E0E0E0')
 
@@ -548,7 +548,7 @@ def main():
             for g, c in zip(['高分組', '潛力組'], ['#00c6ff', '#ff0055']):
                 sub = df[df['ability_group'] == g]
                 agg = sub.groupby('lag_bin_mid')[col_score].mean().reset_index()
-                sns.lineplot(data=agg, x='lag_bin_mid', y=col_score, marker='o', label=g, color=c, linewidth=2, ax=ax3)
+                sns.lineplot(data=agg, x='lag_bin_mid', y=col_score, marker='o', label=g, color=c, linewidth=2, ax=ax3, fontproperties=MY_FONT)
 
             ax3.set_xticks(np.arange(0, 25, 6))
             ax3.set_xlabel("小時", fontproperties=MY_FONT)
