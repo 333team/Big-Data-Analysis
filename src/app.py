@@ -381,21 +381,46 @@ def main():
                 thresh = 80 if score_max > 1.0 else 0.8
                 model_df['target'] = np.where(model_df[col_score] < thresh, 1, 0)
 
+                # 定義特徵
                 features = ['lag_hours', 'diff_code', 'user_ability', col_duration]
                 if '年級' in model_df.columns:
                     model_df['grade_code'] = le.fit_transform(model_df['年級'].astype(str))
                     features.append('grade_code')
 
                 model_df = model_df.dropna(subset=features)
+
+                # 訓練
                 clf = RandomForestClassifier(n_estimators=100, max_depth=8, random_state=42, class_weight='balanced')
                 clf.fit(model_df[features], model_df['target'])
 
                 st.success("模型訓練完成")
 
+                # --- 【修正點 1】建立中英對照字典，讓圖表顯示中文 ---
+                name_mapping = {
+                    'lag_hours': '練習延遲時間',
+                    'diff_code': '任務難易度',
+                    'user_ability': '學生歷史能力',
+                    col_duration: '作答耗時',
+                    'grade_code': '年級'
+                }
+
+                # 取得重要性數值並排序
                 imp = pd.Series(clf.feature_importances_, index=features).sort_values(ascending=False)
+
+                # 將索引(Index)替換成中文名稱
+                imp.index = [name_mapping.get(name, name) for name in imp.index]
+
+                # 繪圖
                 fig_imp, ax_imp = plt.subplots(figsize=(6, 4))
-                imp.plot(kind='barh', ax=ax_imp, color='teal')
-                ax_imp.set_title("24H內影響因子", fontproperties=MY_FONT)
+                # 使用 teal 顏色畫長條圖
+                imp.plot(kind='barh', ax=ax_imp, color='#008080')
+
+                ax_imp.set_title("24H內影響因子", fontproperties=MY_FONT, fontsize=14)
+
+                # --- 【修正點 2】強制設定 Y 軸刻度字體 ---
+                # 這行最重要！它會確保 Y 軸上的中文標籤使用正確的字體檔案
+                ax_imp.set_yticklabels(imp.index, fontproperties=MY_FONT, fontsize=12)
+
                 st.pyplot(fig_imp)
 
 
