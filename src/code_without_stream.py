@@ -27,7 +27,7 @@ warnings.filterwarnings('ignore')
 print("🚀 [Step 1] 初始化與讀取資料...")
 
 # --- 設定字體 (解決中文亂碼) ---
-font_file = "../resource/NotoSansTC-Regular.ttf"
+font_file = "NotoSansTC-Regular.ttf"
 if os.path.exists(font_file):
     my_font = font_manager.FontProperties(fname =font_file)
     # 設定全域字體
