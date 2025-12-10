@@ -216,57 +216,47 @@ def get_chinese_font():
 
 def set_plot_style_dark():
     """
-    設定全域繪圖風格 - 暗色玻璃模式 (修復中文顯示問題)
+    設定全域繪圖風格 - 暗色玻璃模式
+    讓圖表背景透明，文字變白
     """
-    # 1. 設定基礎風格
-    sns.set_theme(style="ticks", context="paper", font_scale=1.2)
+    # 使用 ticks 風格，減少 seaborn 預設背景干擾
+    sns.set_theme(style="ticks", context="paper", font_scale=1.1)
 
-    # 2. 定義中文字體優先順序清單 (Windows, Mac, Linux 通用)
-    # 優先順序：微軟正黑體 -> PingFang (Mac) -> 黑體 -> Noto Sans -> SimHei
-    font_list = [
-        'Microsoft JhengHei',  # Windows 預設
-        'PingFang TC',  # macOS 預設
-        'Heiti TC',  # macOS 舊版
-        'Noto Sans TC',  # Google Fonts
-        'SimHei',  # 常見 fallback
-        'Arial Unicode MS',  # 通用
-        'sans-serif'
-    ]
-
-    # 3. 套用字體設定
-    plt.rcParams['font.sans-serif'] = font_list
-    plt.rcParams['axes.unicode_minus'] = False  # 解決負號無法顯示的問題
-
-    # 4.設定玻璃風格配色 (透明背景 + 白字)
-    plt.rcParams['figure.facecolor'] = 'none'
-    plt.rcParams['axes.facecolor'] = 'none'
+    # Matplotlib 全域設定
+    plt.rcParams['figure.facecolor'] = 'none'  # 圖表背景全透明
+    plt.rcParams['axes.facecolor'] = 'none'  # 座標軸背景全透明
     plt.rcParams['savefig.facecolor'] = 'none'
 
-    # 文字與線條顏色 (白色/亮灰)
+    # 文字顏色設定為白色/亮灰
     text_color = '#E0E0E0'
     plt.rcParams['text.color'] = text_color
     plt.rcParams['axes.labelcolor'] = text_color
     plt.rcParams['xtick.color'] = text_color
     plt.rcParams['ytick.color'] = text_color
 
-    # 邊框與格線 (半透明白)
+    # 【修正點】使用 Tuple (R, G, B, Alpha) 設定半透明顏色，而不是 CSS 字串
+    # 白色 (1,1,1) 透明度 0.3
     plt.rcParams['axes.edgecolor'] = (1, 1, 1, 0.3)
+    # 白色 (1,1,1) 透明度 0.1
     plt.rcParams['grid.color'] = (1, 1, 1, 0.1)
 
-    # 5. 強制 Seaborn 使用同樣字體 (避免被覆蓋)
-    sns.set(font=font_list)
+    my_font = get_chinese_font()
+    if my_font:
+        plt.rcParams['font.sans-serif'] = [my_font.get_name()]
+        plt.rcParams['axes.unicode_minus'] = False
+        sns.set(font=my_font.get_name())
 
-    # 因為 sns.set 會重置顏色，所以必須再次強制設定背景透明
-    plt.rcParams['figure.facecolor'] = 'none'
-    plt.rcParams['axes.facecolor'] = 'none'
-    plt.rcParams['text.color'] = text_color
-    plt.rcParams['axes.labelcolor'] = text_color
-    plt.rcParams['xtick.color'] = text_color
-    plt.rcParams['ytick.color'] = text_color
-    plt.rcParams['axes.edgecolor'] = (1, 1, 1, 0.3)
-    plt.rcParams['grid.color'] = (1, 1, 1, 0.1)
-    plt.rcParams['font.sans-serif'] = font_list  # 再次確保字體
+        # sns.set 有時會重置顏色，這裡再次強制覆蓋
+        plt.rcParams['figure.facecolor'] = 'none'
+        plt.rcParams['axes.facecolor'] = 'none'
+        plt.rcParams['text.color'] = text_color
+        plt.rcParams['axes.labelcolor'] = text_color
+        plt.rcParams['xtick.color'] = text_color
+        plt.rcParams['ytick.color'] = text_color
+        plt.rcParams['axes.edgecolor'] = (1, 1, 1, 0.3)
+        plt.rcParams['grid.color'] = (1, 1, 1, 0.1)
 
+        return my_font
     return None
 
 
