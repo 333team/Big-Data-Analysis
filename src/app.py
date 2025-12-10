@@ -548,7 +548,7 @@ def main():
             for g, c in zip(['高分組', '潛力組'], ['#00c6ff', '#ff0055']):
                 sub = df[df['ability_group'] == g]
                 agg = sub.groupby('lag_bin_mid')[col_score].mean().reset_index()
-                sns.lineplot(data=agg, x='lag_bin_mid', y=col_score, marker='o', label=g, color=c, linewidth=2, ax=ax3, fontproperties=MY_FONT)
+                sns.lineplot(data=agg, x='lag_bin_mid', y=col_score, marker='o', label=g, color=c, linewidth=2, ax=ax3)
 
             ax3.set_xticks(np.arange(0, 25, 6))
             ax3.set_xlabel("小時", fontproperties=MY_FONT)
