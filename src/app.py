@@ -476,7 +476,7 @@ def main():
                              marker='o', linewidth=2.5, ax=ax)
                 # 設定 Legend 文字顏色
                 if ax.legend_:
-                    plt.setp(ax.get_legend().get_texts(), color='#E0E0E0')
+                    plt.setp(ax.get_legend().get_texts(), color='#E0E0E0', fontproperties=MY_FONT)
             else:
                 agg = df.groupby('lag_bin_mid')[y_opt].mean().reset_index()
                 sns.lineplot(data=agg, x='lag_bin_mid', y=y_opt, marker='o',
