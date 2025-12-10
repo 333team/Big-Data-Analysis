@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -275,6 +276,117 @@ def display_kpi_card(title, value, note, color_border="#4F8BF9"):
     """, unsafe_allow_html=True)
 
 
+def add_magic_cursor_effect():
+    components.html(
+        """
+        <script>
+        // ---- 讓主頁面注入 canvas（突破 iframe 限制） ----
+
+        // 避免重複新增多次
+        if (!window.parent.document.getElementById("global-magic-canvas")) {
+            const canvas = window.parent.document.createElement("canvas");
+            canvas.id = "global-magic-canvas";
+            canvas.style.position = "fixed";
+            canvas.style.top = "0";
+            canvas.style.left = "0";
+            canvas.style.width = "100vw";
+            canvas.style.height = "100vh";
+            canvas.style.pointerEvents = "none";
+            canvas.style.zIndex = "999999";
+            window.parent.document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext("2d");
+
+            function resize() {
+                canvas.width  = window.parent.innerWidth;
+                canvas.height = window.parent.innerHeight;
+            }
+            resize();
+            window.parent.addEventListener("resize", resize);
+
+            const trail = [];
+            const maxTrail = 25;
+
+            window.parent.addEventListener("mousemove", (e) => {
+                trail.push({ x: e.clientX, y: e.clientY, t: Date.now() });
+                if (trail.length > maxTrail) trail.shift();
+            });
+
+            const particles = [];
+
+            function createParticle(x, y) {
+                const p = {
+                    x,
+                    y,
+                    vx: (Math.random() - 0.5) * 1.2,  // ← 更小爆炸範圍
+                    vy: (Math.random() - 0.5) * 1.2,
+                    life: 1.0,
+                    size: Math.random() * 1 + 1,     // ← 粒子變得更小（1~2px）
+                    hue: Math.random() * 360
+                };
+                particles.push(p);
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.lineWidth = 6;
+                ctx.lineCap = "round";
+
+                // 🌈 彩虹拖尾（保持不變）
+                for (let i = 1; i < trail.length; i++) {
+                    const p1 = trail[i - 1];
+                    const p2 = trail[i];
+                    const age = (Date.now() - p2.t) / 400;
+                    if (age > 1) continue;
+                    const alpha = 1 - age;
+                    const hue = (i * 15 + Date.now() / 20) % 360;
+
+                    ctx.strokeStyle = `hsla(${hue}, 100%, 60%, ${alpha})`;
+
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                }
+
+                // ✨ 讓粒子變多（每偵 8 個）
+                if (trail.length > 0) {
+                    const latest = trail[trail.length - 1];
+                    for (let i = 0; i < 8; i++) {   // ← 粒子量增加
+                        createParticle(latest.x, latest.y);
+                    }
+                }
+
+                // ✨ 更新並繪製粒子
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    p.life -= 0.03; // ← 快速淡出更精緻
+
+                    if (p.life <= 0) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+
+                    ctx.fillStyle = `hsla(${p.hue}, 100%, 70%, ${p.life})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+        </script>
+        """,
+        height=0,
+        width=0
+    )
+
 # ==============================================================================
 # 1. 資料處理核心邏輯 (0-24H 高密度版) - 保持不變
 # ==============================================================================
@@ -371,6 +483,8 @@ def main():
         enable_outlier_removal = st.toggle("IQR 極端值過濾", value=True)
         st.caption("ℹ️ 分析範圍：0 ~ 24 小時")
         st.markdown("---")
+
+    add_magic_cursor_effect()
 
     # --- Header ---
     st.markdown('<div class="main-title">🎓 教育大數據：學習黃金窗口</div>', unsafe_allow_html=True)
