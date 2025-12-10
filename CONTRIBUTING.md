@@ -1,179 +1,184 @@
+# 🐍 Python 團隊專案開發手冊 (SOP)
 
-# 🐍 Python 專案協作 SOP
+歡迎加入本專案！由於這是一個 **Private (私人)** 專案，且我們採用嚴格的 Git Flow 版本控制，請務必按照以下步驟進行設定與開發。
 
-## ⚠️ 黃金準則 (Absolutely Important)
-1.  **永遠不要** 直接在 `main` 分支上修改程式碼。
-2.  **永遠不要** 使用 `Force Push` (強制推送)。
-3.  **開始工作前**，一定要先更新 (`Pull`) 最新進度。
-4.  **修改程式前**，一定要先建立新分支 (`Branch`)。
+## ⚠️ 黃金準則 (絕對要遵守)
+1.  **接受邀請**：沒接受邀請前，你連專案都看不到。
+2.  **嚴禁直推 Main**：永遠不要直接在 `main` 分支修改程式碼。
+3.  **先分支，再開發**：修改任何程式碼前，一定要先建立新分支。
+4.  **保持同步**：開工前，一定要先 Pull 更新進度。
 
 ---
 
-## 🛠️ 第一階段：環境建置 (Initial Setup)
+## 🏁 第一階段：加入專案 (Access)
 
-請依據你的編輯器選擇對應的操作步驟。這部分只需做一次。
+因為這是私人專案，你無法直接 Clone。
 
-### 🔵 給 VS Code 使用者
+1.  **收取邀請信**：
+    *   前往你的 Email 信箱，尋找標題包含 `[GitHub] ... invited you to join` 的信件。
+    *   點擊信中的 **View invitation** -> **Accept invitation**。
+    *   *或者*：直接登入 GitHub 網站，點擊右上角鈴鐺 🔔，在通知中按 **Accept**。
+2.  **確認權限**：
+    *   點擊專案網址，確認你能看到程式碼列表，而不是 404 錯誤。
 
-**1. 安裝必要套件**
-*   請確認已安裝 **Python** 擴充套件 (Microsoft 出品)。
-*   推薦安裝 **Git Graph** (可以看到漂亮的分支圖)。
+---
+
+## 🛠️ 第二階段：環境建置 (Setup)
+
+請依據你使用的編輯器選擇對應步驟。
+
+### 🔵 選項 A：使用 VS Code
+
+**1. 準備工具**
+*   確認已安裝 **VS Code** 與 **Python**。
+*   **強烈推薦**：安裝 **Git Graph** 擴充套件 (方便看線圖)。
 
 **2. 下載專案 (Clone)**
-1.  打開 VS Code。
-2.  按下 `F1` 或 `Ctrl+Shift+P` (Mac: `Cmd+Shift+P`) 開啟指令列。
-3.  輸入 `Git: Clone` 並按下 Enter。
-4.  貼上專案的 GitHub 網址：`https://github.com/你的帳號/專案名稱.git`。
-5.  選擇電腦中的一個資料夾存放，下載完成後點擊 **Open**。
+1.  打開 VS Code，按下 `F1` 或 `Ctrl+Shift+P` (Mac: `Cmd+Shift+P`)。
+2.  輸入 `Git: Clone` 並 Enter。
+3.  貼上專案網址：`https://github.com/你的帳號/專案名稱.git`。
+4.  **登入授權**：
+    *   系統會跳出 *"Sign in to GitHub..."* 提示。
+    *   點擊 **Allow** -> 瀏覽器彈出授權頁 -> 點擊 **Authorize** -> 允許開啟 VS Code。
+5.  選擇存放資料夾 -> 下載完成後點擊 **Open**。
 
-**3. 建立虛擬環境 (Virtual Environment)**
-1.  在 VS Code 中按下 `Ctrl + ~` (波浪號) 打開下方終端機 (Terminal)。
-2.  輸入以下指令建立虛擬環境：
-    *   **Windows**: `python -m venv .venv`
-    *   **Mac/Linux**: `python3 -m venv .venv`
-3.  **重要步驟**：VS Code 右下角會跳出通知 *"We noticed a new virtual environment has been created. Do you want to select it for the workspace folder?"*
-    *   請務必點選 **Yes**。
-    *   *如果沒跳出*：按 `F1` -> 輸入 `Python: Select Interpreter` -> 選擇有 `('.venv': venv)` 字樣的選項。
+**3. 建立虛擬環境**
+1.  按下 `Ctrl + ~` 開啟終端機。
+2.  輸入：
+    *   Windows: `python -m venv .venv`
+    *   Mac: `python3 -m venv .venv`
+3.  **關鍵一步**：右下角跳出 *"We noticed a new virtual environment..."* 時，務必點選 **Yes**。
 
-**4. 安裝依賴套件**
-1.  確認終端機最前方有出現 `(.venv)` 字樣 (代表已進入虛擬環境)。
-    *   *若無*：關掉終端機 (`垃圾桶圖示`) 再開一個新的就會出現。
-2.  輸入指令：`pip install -r requirements.txt`。
-
----
-
-### 🟢 給 PyCharm 使用者
-
-**1. 下載專案 (Clone)**
-1.  打開 PyCharm，在歡迎畫面點擊 **Get from VCS** (或右上角 `Git` -> `Clone`)。
-2.  **URL** 欄位貼上：`https://github.com/你的帳號/專案名稱.git`。
-3.  **Directory** 選擇存放位置，點擊 **Clone**。
-
-**2. 設定虛擬環境 (Virtual Environment)**
-PyCharm 通常會自動偵測，但為了保險請檢查：
-1.  點擊右下角的 `<No Interpreter>` 或目前的 Python 版本號文字。
-2.  選擇 **Add New Interpreter** -> **Add Local Interpreter**。
-3.  選擇 **Virtualenv Environment**。
-    *   **Location**: 確保路徑結尾是 `/venv` 或 `/.venv` (專案資料夾內)。
-    *   **Base interpreter**: 選擇你電腦安裝的 Python。
-    *   點擊 **OK**。
-4.  PyCharm 會開始建立環境 (右下角會有進度條)，請耐心等待。
-
-**3. 安裝依賴套件**
-1.  打開專案中的 `requirements.txt` 檔案。
-2.  PyCharm 頂部通常會跳出黃色通知 *"Package requirements are not satisfied"*。
-3.  點擊 **Install requirements** 即可。
-    *   *若沒跳出*：點擊下方 **Terminal** 標籤，輸入 `pip install -r requirements.txt`。
+**4. 安裝套件**
+1.  確認終端機前方有 `(.venv)` 字樣。
+2.  輸入：`pip install -r requirements.txt`。
 
 ---
 
-## 🔄 第二階段：日常開發流程 (Daily Workflow)
+### 🟢 選項 B：使用 PyCharm
 
-這是你每天要重複做的動作。請養成肌肉記憶。
+**1. 綁定帳號 (Auth)**
+1.  打開 PyCharm -> **Settings** (Windows: `Ctrl+Alt+S` / Mac: `Cmd+,`)。
+2.  點選 **Version Control** -> **GitHub**。
+3.  點擊 `+` 號 -> **Log In via GitHub** -> 在瀏覽器點擊 **Authorize JetBrains**。
+
+**2. 下載專案 (Clone)**
+1.  在歡迎畫面點擊 **Get from VCS** (或主畫面右上角 `Git` -> `Clone`)。
+2.  左側選單點 **GitHub**，你應該會看到此專案在列表中 (因為你已接受邀請)。
+3.  選中專案，點擊 **Clone**。
+
+**3. 設定虛擬環境**
+1.  PyCharm 通常會自動偵測。若出現 *"No Python interpreter configured"*：
+2.  點擊右下角 `<No Interpreter>` -> **Add New Interpreter** -> **Add Local Interpreter**。
+3.  選擇 **Virtualenv** -> 確保路徑在專案內的 `.venv` -> OK。
+
+**4. 安裝套件**
+1.  打開 `requirements.txt` 檔案。
+2.  點擊頂部黃色警告條的 **Install requirements**。
+
+---
+
+## 🔄 第三階段：日常開發循環 (Daily Workflow)
+
+這是你每天要重複做的動作，請養成肌肉記憶。
 
 ### 🔵 VS Code 操作流程
 
-#### 步驟 1：同步最新進度 (Sync)
-1.  看左下角狀態列，確認目前分支是 `main`。
-    *   如果不是，點擊分支名稱 -> 選擇 `main`。
-2.  點擊左側選單的 **原始碼控制 (Source Control)** (像樹枝的圖示)。
-3.  點擊選單右上角的 `...` -> **Pull** (拉取)。
-    *   *或者*：點擊左下角的同步圖示 (圓圈箭頭)。
+#### 1. 同步 (Sync)
+*   **目的**：確保你的 `main` 是最新的，避免衝突。
+*   **動作**：
+    1.  點擊左下角分支名稱，切換到 `main`。
+    2.  點擊左側 **原始碼控制 (Source Control)** 圖示。
+    3.  點擊左下角的 **同步圖示 (🔄)** 或選單中的 **Pull**。
 
-#### 步驟 2：建立新分支 (Branch)
-1.  點擊左下角的 `main` 字樣。
-2.  在上方選單選擇 **+ Create new branch...** (建立新分支)。
-3.  **輸入分支名稱** (範例：`feature/login-page` 或 `fix/data-error`)。
-4.  按下 Enter，左下角現在應顯示你的新分支名稱。
+#### 2. 分支 (Branch)
+*   **目的**：隔離你的開發環境。
+*   **動作**：
+    1.  點擊左下角 `main`。
+    2.  選單上方點 **+ Create new branch**。
+    3.  **命名規則**：
+        *   新功能：`feature/你的功能名` (例 `feature/login-ui`)
+        *   修 Bug：`fix/錯誤名稱` (例 `fix/api-timeout`)
+    4.  輸入完按 Enter。
 
-#### 步驟 3：寫程式與提交 (Commit)
-1.  修改你的程式碼。
-2.  進入 **原始碼控制 (Source Control)** 面板。
-3.  你会看到 "Changes" 下列出你改過的檔案。
-4.  點擊檔案旁邊的 **+** 號 (Stage Changes)，將檔案移到 "Staged Changes" 區塊。
-5.  在上方 "Message" 欄位輸入修改說明 (例如：「新增登入按鈕樣式」)。
-6.  點擊藍色的 **Commit** 按鈕。
+#### 3. 提交 (Commit)
+*   **動作**：
+    1.  寫程式、存檔。
+    2.  點擊 **原始碼控制**。
+    3.  按檔案旁的 `+` (Stage Changes)。
+    4.  輸入清楚的訊息 (例：「完成登入頁面切版」)。
+    5.  按 **Commit**。
 
-#### 步驟 4：推送到雲端 (Push)
-1.  點擊藍色的 **Publish Branch** (發佈分支) 按鈕。
-2.  之後若有修改，按鈕會變成 **Sync Changes**，點擊即可推送。
+#### 4. 推送 (Push)
+*   **動作**：
+    1.  按藍色的 **Publish Branch**。
+    2.  (若之後有修改) 按 **Sync Changes**。
 
 ---
 
 ### 🟢 PyCharm 操作流程
 
-#### 步驟 1：同步最新進度 (Sync)
-1.  看視窗**右下角**或**頂部 Git 工具列**，確認目前分支顯示 `main`。
-    *   如果不是，點擊它 -> 選擇 `main` -> **Checkout**。
-2.  點擊頂部導航列的藍色箭頭圖示 (Update Project)。
-    *   或者：右鍵點擊專案資料夾 -> **Git** -> **Pull**。
-3.  選擇 **Merge** 或 **Rebase** (預設即可)，點擊 OK。
+#### 1. 同步 (Sync)
+*   **動作**：
+    1.  確認右下角顯示 `main`。
+    2.  點擊上方導航列的 **藍色箭頭 (Update Project)**。
+    3.  選擇 **Merge** -> OK。
 
-#### 步驟 2：建立新分支 (Branch)
-1.  點擊**右下角** (或頂部) 的 `main` 分支名稱。
-2.  選擇 **+ New Branch**。
-3.  **Name** 輸入分支名稱 (範例：`feature/login-page`)。
-4.  勾選 **Checkout branch**。
-5.  點擊 **Create**。
+#### 2. 分支 (Branch)
+*   **動作**：
+    1.  點擊右下角 `main`。
+    2.  選擇 **+ New Branch**。
+    3.  輸入名稱 (例 `feature/login-ui`) -> 勾選 Checkout -> Create。
 
-#### 步驟 3：寫程式與提交 (Commit)
-1.  修改你的程式碼。
-2.  點擊左側選單的 **Commit** 標籤 (或按下 `Ctrl+K` / `Cmd+K`)。
-3.  在 Changes 清單中，**勾選**你要提交的檔案。
-4.  在下方 Commit Message 區域輸入說明。
-5.  點擊右下角的 **Commit** 按鈕。
+#### 3. 提交 (Commit)
+*   **動作**：
+    1.  點擊左側 **Commit** 標籤 (`Alt+0` 或 `Cmd+0`)。
+    2.  勾選要提交的檔案。
+    3.  輸入訊息 -> 點擊右下角 **Commit**。
 
-#### 步驟 4：推送到雲端 (Push)
-1.  點擊頂部的 **綠色箭頭** (Push) 圖示 (或按下 `Ctrl+Shift+K` / `Cmd+Shift+K`)。
-2.  確認此時是要推送到你的新分支。
-3.  點擊 **Push**。
+#### 4. 推送 (Push)
+*   **動作**：
+    1.  點擊上方 **綠色箭頭 (Push)** (`Ctrl+Shift+K`)。
+    2.  確認分支無誤 -> **Push**。
 
 ---
 
-## 🚀 第三階段：合併程式碼 (Pull Request)
+## 🚀 第四階段：發起合併請求 (Pull Request)
 
-無論你用哪個編輯器，這一步驟統一在 **GitHub 網頁** 上進行。
+無論你用哪個編輯器，這一步請回到 **GitHub 網頁** 操作。
 
-1.  **發起請求**：
-    *   當你 Push 完後，打開 GitHub 專案首頁。
-    *   你會看到一個黃色通知框 *"Compare & pull request"*，點擊它。
-    *   (若沒看到，去 "Pull requests" 分頁點 "New pull request" -> 選擇你的分支)。
-
+1.  **發起 PR**：
+    *   Push 後，GitHub 首頁會出現黃色框框 *"Compare & pull request"*，點擊它。
 2.  **填寫資訊**：
-    *   **Title**: 簡單清楚地說明你做了什麼。
-    *   **Description**: 描述細節、測試方式。
-    *   **Reviewers** (右側欄位): **務必選取組長 (你的名字)**。
-
-3.  **送出**：
-    *   點擊綠色的 **Create pull request**。
-
-4.  **等待審核**：
-    *   通知組長：「我發 PR 了，麻煩看一下」。
-    *   如果組長要求修改 (Changes requested)，請在本地修改程式 -> 存檔 -> Commit -> Push。
-    *   GitHub 上的 PR 會自動更新你的修改，**不需要**重新開一個 PR。
-
-5.  **合併完成**：
-    *   當組長核准並合併後，你的工作就完成了。
-    *   回到編輯器，切換回 `main` 分支，執行 **Pull**，準備下一個工作。
+    *   **Title**：簡述做了什麼。
+    *   **Reviewers** (右側欄位)：**一定要選組長**。
+3.  **建立**：
+    *   點擊 **Create pull request**。
+4.  **修改 (若被退回)**：
+    *   若組長要求修改，**不用**關閉 PR。
+    *   在本地電腦修改 -> Commit -> Push。
+    *   PR 會自動更新，並通知組長再次檢查。
+5.  **合併**：
+    *   組長核准並合併後，你的任務完成。
+    *   **刪除分支**：GitHub 上會提示 Delete branch，可以點擊刪除。
+    *   回到電腦，切換回 `main`，Pull 最新進度，準備下一個任務。
 
 ---
 
-## 🆘 常見災難救援 (FAQ)
+## 🆘 常見問題急救包 (FAQ)
 
-**Q1: 我忘記切換分支，不小心在 `main` 上面改了程式怎麼辦？**
-*   **VS Code**:
-    1.  不要驚慌，還不要 Commit。
-    2.  直接點擊左下角建立新分支 (`feature/xxx`)。
-    3.  你的修改會自動帶過去新分支，現在可以安全 Commit 了。
-*   **PyCharm**:
-    1.  同上，直接 New Branch，修改會自動帶過去 (Smart Checkout)。
+**Q1: Push 的時候出現 `Authentication failed` 或一直問密碼？**
+*   **原因**：GitHub 不再支援密碼登入，需用 Token 或 OAuth。
+*   **解法**：
+    *   VS Code: 點左下角人頭 -> Sign out -> 再按 Sync 觸發重新登入。
+    *   PyCharm: Settings -> Version Control -> GitHub -> 刪除舊帳號重新 Log In。
 
-**Q2: Push 的時候被拒絕 (Rejected)？**
-*   這通常是因為別人在你之前改了同一個分支 (或你是多人共用分支)。
-*   執行 **Pull** (拉取) -> 解決衝突 (Conflict) -> 再次 Push。
+**Q2: 忘記開分支，直接在 `main` 改了程式？**
+*   **千萬不要 Commit**。
+*   直接建立新分支 (Create Branch)。
+*   你的修改會自動「帶過去」新分支，這時再 Commit 即可。
 
-**Q3: 遇到「衝突 (Conflict)」怎麼辦？**
-*   編輯器會標示出紅色的區域。
-*   `<<<<<<<` 是你的程式，`>>>>>>>` 是傳入的程式。
-*   **VS Code**: 上方會有按鈕 "Accept Current" (保留你的) 或 "Accept Incoming" (保留對方的)。選完後存檔提交。
-*   **PyCharm**: 會跳出一個三欄視窗，左邊是你，右邊是對方，中間是結果。點擊 `>>` 或 `<<` 來決定要用誰的，最後按 Apply。
+**Q3: 遇到 Conflict (衝突) 怎麼辦？**
+*   這代表別人在你修改的同一行程式碼做了變更。
+*   **VS Code**: 選擇 `Accept Incoming` (用對方的) 或 `Accept Current` (用你的)，存檔後提交。
+*   **PyCharm**: 會跳出三欄視窗，中間是結果。點擊 `<<` 或 `>>` 決定保留哪邊，最後按 Apply。
