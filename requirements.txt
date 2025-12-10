@@ -1,6 +1,6 @@
 streamlit==1.52.1
 pandas==2.3.3
-statsmodels
-scikit-learn
-seaborn
-matplotlib
+statsmodels==0.14.6
+scikit-learn==1.8.0
+seaborn==0.13.2
+matplotlib==3.10.7
