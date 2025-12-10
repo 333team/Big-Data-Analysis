@@ -379,7 +379,7 @@ def main():
     # --- GitHub 部署路徑設定 ---
     current_dir = os.path.dirname(os.path.abspath(__file__))
     # 根據你的需求修改路徑
-    FILE_PATH = os.path.join(current_dir, '../src/resource', 'anonymized_file0115.csv')
+    FILE_PATH = os.path.join(current_dir, 'resource', 'anonymized_file0115.csv')
 
     # 測試用: 如果上一層找不到，試試看當前目錄 (方便本地測試)
     if not os.path.exists(FILE_PATH):
