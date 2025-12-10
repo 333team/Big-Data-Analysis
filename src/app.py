@@ -515,15 +515,16 @@ def main():
                 agg = agg[agg[col_difficulty].isin(present_diffs)]
                 sns.lineplot(data=agg, x='lag_bin_mid', y=col_duration, hue=col_difficulty, hue_order=present_diffs,
                              palette=colors, marker='s', linewidth=2.5, ax=ax2)
-                if ax2.legend_:
-                    plt.setp(ax2.get_legend().get_texts(), color='#E0E0E0')
             else:
                 agg = df.groupby('lag_bin_mid')[col_duration].median().reset_index()
                 ax2.fill_between(agg['lag_bin_mid'], agg[col_duration], color="#ffdd00", alpha=0.1)
                 sns.lineplot(data=agg, x='lag_bin_mid', y=col_duration, marker='s', color='#ffdd00', linewidth=2.5,
                              label="全體中位數", ax=ax2)
-                if ax2.legend_:
-                    plt.setp(ax2.get_legend().get_texts(), color='#E0E0E0')
+
+            # --- 【修正】強制設定圖例字體 ---
+            if ax2.get_legend():
+                plt.setp(ax2.get_legend().get_texts(), fontproperties=MY_FONT, color='#E0E0E0')
+                plt.setp(ax2.get_legend().get_title(), fontproperties=MY_FONT, color='#E0E0E0')
 
             ax2.set_xticks(np.arange(0, 25, 3))
             ax2.set_xlabel("練習延遲時間 (小時)", fontproperties=MY_FONT)
@@ -550,10 +551,15 @@ def main():
                 agg = sub.groupby('lag_bin_mid')[col_score].mean().reset_index()
                 sns.lineplot(data=agg, x='lag_bin_mid', y=col_score, marker='o', label=g, color=c, linewidth=2, ax=ax3)
 
+            # --- 【修正】左圖圖例字體 ---
+            if ax3.legend_:
+                # 這裡使用 legend(prop=MY_FONT) 是另一種寫法，效果一樣
+                ax3.legend(prop=MY_FONT)
+                plt.setp(ax3.get_legend().get_texts(), color='#E0E0E0')
+
             ax3.set_xticks(np.arange(0, 25, 6))
             ax3.set_xlabel("小時", fontproperties=MY_FONT)
             ax3.set_ylabel("平均正確率", fontproperties=MY_FONT)
-            if ax3.legend_: plt.setp(ax3.get_legend().get_texts(), color='#E0E0E0')
             st.pyplot(fig3)
 
         with col_d2:
@@ -565,7 +571,6 @@ def main():
 
             fig4, ax4 = create_glass_figure(figsize=(6, 5))
             if know_cols:
-                # 鮮豔的顏色循環
                 palette = sns.color_palette("husl", len(know_cols))
                 markers = ['o', 's', '^', 'D', 'v']
                 for idx, col in enumerate(know_cols):
@@ -573,10 +578,16 @@ def main():
                     label_name = col.replace('正確率', '')
                     sns.lineplot(data=agg, x='lag_bin_mid', y=col, marker=markers[idx % 5], label=label_name,
                                  color=palette[idx], linewidth=2, ax=ax4)
+
+                # --- 【修正】右圖圖例字體 ---
+                if ax4.legend_:
+                    ax4.legend(prop=MY_FONT)
+                    plt.setp(ax4.get_legend().get_texts(), color='#E0E0E0')
+
                 ax4.set_xticks(np.arange(0, 25, 6))
                 ax4.set_xlabel("小時", fontproperties=MY_FONT)
                 ax4.set_ylabel("平均正確率", fontproperties=MY_FONT)
-                if ax4.legend_: plt.setp(ax4.get_legend().get_texts(), color='#E0E0E0')
+                ax4.grid(True, linestyle='--', alpha=0.15, color='white')
                 st.pyplot(fig4)
             else:
                 st.info("請選擇向度")
