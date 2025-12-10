@@ -229,13 +229,11 @@ def main():
     # --- Sidebar ---
     with st.sidebar:
         st.title("控制台")
-        st.info("📂 資料來源：GitHub Repository")
-        st.markdown(f"`resource/anonymized_file0115.csv`")
+        st.info("📂 資料來源：大數據教育競賽")
 
         st.markdown("### ⚙️ 參數設定")
         enable_outlier_removal = st.toggle("IQR 極端值過濾", value=True)
-        st.info("ℹ️ 分析範圍鎖定：0 ~ 24 小時")
-        st.caption("Auto Dark/Light Mode Supported")
+        st.info("ℹ️ 分析範圍：0 ~ 24 小時")
 
     # --- Header ---
     st.markdown('<div class="main-title">🎓 教育大數據：學習黃金窗口</div>', unsafe_allow_html=True)
