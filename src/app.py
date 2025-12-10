@@ -29,17 +29,30 @@ st.set_page_config(
 
 
 def get_chinese_font():
-    """獲取中文字體"""
-    custom_font_path = "NotoSansTC-Regular.ttf"
-    if os.path.exists(custom_font_path):
-        return font_manager.FontProperties(fname=custom_font_path)
+    """
+    獲取中文字體：優先使用專案目錄下的 NotoSansTC-Regular.ttf
+    """
+    # 1. 獲取當前檔案 (app.py) 的絕對路徑，確保在 Streamlit Cloud 能找到
+    current_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # 2. 指定字型檔名稱
+    font_name = "NotoSansTC-Regular.ttf"
+
+    # 3. 組合出完整路徑
+    font_path = os.path.join(current_dir, font_name)
+
+    # 4. 檢查檔案是否存在
+    if os.path.exists(font_path):
+        return font_manager.FontProperties(fname=font_path)
+
+    # --- 如果沒上傳字型檔，嘗試系統字型 (備案) ---
     system = platform.system()
     if system == "Windows":
         return font_manager.FontProperties(fname=r"C:\Windows\Fonts\msjh.ttc")
-    elif system == "Darwin":
+    elif system == "Darwin":  # Mac
         return font_manager.FontProperties(fname="/System/Library/Fonts/PingFang.ttc")
     elif system == "Linux":
+        # Streamlit Cloud 可能的路徑 (若有安裝 packages.txt)
         paths = [
             "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
             "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc"
@@ -47,19 +60,28 @@ def get_chinese_font():
         for p in paths:
             if os.path.exists(p):
                 return font_manager.FontProperties(fname=p)
+
     return None
 
 
 def set_plot_style():
     """設定繪圖風格"""
     sns.set_style("whitegrid")
+
+    # 獲取字體物件
     my_font = get_chinese_font()
+
     if my_font:
-        plt.rcParams['font.sans-serif'] = [my_font.get_name()]
+        # 重要：將字體名稱加入 Matplotlib 的搜尋序列
+        plt.rcParams['font.sans-serif'] = [my_font.get_name()] + plt.rcParams['font.sans-serif']
         plt.rcParams['axes.unicode_minus'] = False
+
+        # 回傳 font_properties 物件，供個別圖表使用
+        return my_font
     else:
+        # 如果真的找不到任何中文字體，至少確保負號顯示正常
         plt.rcParams['axes.unicode_minus'] = False
-    return my_font
+        return None
 
 
 MY_FONT = set_plot_style()
