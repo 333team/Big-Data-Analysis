@@ -93,11 +93,9 @@ st.markdown("""
 
 def get_chinese_font():
     """獲取中文字體：優先使用專案目錄下的字型檔"""
-    # 使用 __file__ 確保路徑是相對於程式碼檔案的
     current_dir = os.path.dirname(os.path.abspath(__file__))
     font_name = "NotoSansTC-Regular.ttf"
     font_path = os.path.join(current_dir, font_name)
-
     if os.path.exists(font_path):
         return font_manager.FontProperties(fname=font_path)
 
@@ -229,7 +227,7 @@ def main():
     # --- Sidebar ---
     with st.sidebar:
         st.title("控制台")
-        st.info("📂 資料來源：大數據教育競賽")
+        st.info("📂 資料來源：教育大數據競賽")
 
         st.markdown("### ⚙️ 參數設定")
         enable_outlier_removal = st.toggle("IQR 極端值過濾", value=True)
@@ -239,9 +237,8 @@ def main():
     st.markdown('<div class="main-title">🎓 教育大數據：學習黃金窗口</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">24H Learning Consolidation Analytics Dashboard</div>', unsafe_allow_html=True)
 
-    # --- 【關鍵修改】適應 GitHub 部署的路徑設定 ---
+    # --- GitHub 部署路徑設定 ---
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # 這裡假設您的資料夾結構是 app.py 與 resource 資料夾在同一層
     FILE_PATH = os.path.join(current_dir, 'resource', 'anonymized_file0115.csv')
 
     if not os.path.exists(FILE_PATH):
@@ -335,6 +332,13 @@ def main():
             if MY_FONT: ax.legend(prop=MY_FONT)
             st.pyplot(fig)
 
+        # --- 【修正】補回圖表解讀 ---
+        with st.expander("💡 圖表解讀"):
+            st.markdown("""
+            *   **趨勢意義**：觀察曲線是否隨時間上升。若上升，代表存在「記憶鞏固」效應；若持平或下降，則可能代表遺忘發生或缺乏複習效益。
+            *   **難度分層**：通常「困難」的任務在初期正確率較低，但若經過適當延遲，其回升幅度可能更明顯（適度困難理論）。
+            """)
+
     # Tab 3: 認知負荷
     with tab3:
         st.subheader("⏱️ 認知負荷 (答題時間) 分析")
@@ -367,6 +371,13 @@ def main():
             ax2.grid(True, linestyle='--', alpha=0.5)
             if MY_FONT: ax2.legend(prop=MY_FONT)
             st.pyplot(fig2)
+
+        # --- 【修正】補回圖表解讀 ---
+        with st.expander("💡 圖表解讀"):
+            st.markdown("""
+            *   **認知負荷**：答題時間可視為認知負荷的代理指標。
+            *   **費力提取**：若長時間延遲後（例如 18-24小時），答題時間顯著增加，且正確率未下降，代表學生正在進行「費力提取 (Effortful Retrieval)」，這是強化長期記憶最有效的時刻。
+            """)
 
     # Tab 4: 分群差異
     with tab4:
@@ -414,6 +425,14 @@ def main():
                 st.pyplot(fig4)
             else:
                 st.info("請選擇向度")
+
+        # --- 【修正】補回圖表解讀 ---
+        with st.expander("💡 圖表解讀"):
+            st.markdown("""
+            *   **行為模式對比**：
+                *   **正確率 (左圖)**：高分組 (藍線) 通常維持穩定，這是預期中的結果。
+                *   **知識向度 (右圖)**：透過上方選單，您可以觀察不同類型的題目（如：單純擷取訊息 vs 深度文本理解）隨時間變化的趨勢。通常「深度理解」類的題目，在適當延遲後會有較明顯的鞏固效應。
+            """)
 
     # Tab 5: AI 預測
     with tab5:
