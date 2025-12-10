@@ -27,7 +27,7 @@ warnings.filterwarnings('ignore')
 print("🚀 [Step 1] 初始化與讀取資料...")
 
 # --- 設定字體 (解決中文亂碼) ---
-font_file = "resource/NotoSansTC-Regular.ttf"
+font_file = "../resource/NotoSansTC-Regular.ttf"
 if os.path.exists(font_file):
     my_font = font_manager.FontProperties(fname=font_file)
     # 設定全域字體
@@ -39,7 +39,7 @@ else:
     print("⚠️ 警告：找不到中文字體檔，圖表文字可能無法正常顯示。")
 
 # --- 欄位名稱對照 (依據您的資料) ---
-FILE_PATH = 'resource/anonymized_file0115.csv'
+FILE_PATH = '../resource/anonymized_file0115.csv'
 COL_USER = '學生姓名去識別化'
 COL_START_TIME = '任務派發時間'
 COL_END_TIME = '學生首次送出答案的時間點'
