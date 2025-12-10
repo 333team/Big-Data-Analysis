@@ -92,10 +92,12 @@ st.markdown("""
 
 
 def get_chinese_font():
-    """獲取中文字體"""
+    """獲取中文字體：優先使用專案目錄下的字型檔"""
+    # 使用 __file__ 確保路徑是相對於程式碼檔案的
     current_dir = os.path.dirname(os.path.abspath(__file__))
     font_name = "NotoSansTC-Regular.ttf"
     font_path = os.path.join(current_dir, font_name)
+
     if os.path.exists(font_path):
         return font_manager.FontProperties(fname=font_path)
 
@@ -146,7 +148,6 @@ def display_kpi_card(title, value, note, color_border="#4F8BF9"):
 def load_and_preprocess_data(file_path, remove_outliers=False):
     stats = {}
     try:
-        # 直接讀取路徑
         df = pd.read_csv(file_path)
         stats['original_count'] = len(df)
 
@@ -228,27 +229,30 @@ def main():
     # --- Sidebar ---
     with st.sidebar:
         st.title("控制台")
-        # --- 【修改點 1】移除檔案上傳器，改為顯示資料狀態 ---
-        st.info("📂 資料來源：教育大數據競賽")
+        st.info("📂 資料來源：GitHub Repository")
+        st.markdown(f"`resource/anonymized_file0115.csv`")
 
         st.markdown("### ⚙️ 參數設定")
         enable_outlier_removal = st.toggle("IQR 極端值過濾", value=True)
-        st.info("ℹ️ 分析範圍：0 ~ 24 小時")
-
+        st.info("ℹ️ 分析範圍鎖定：0 ~ 24 小時")
+        st.caption("Auto Dark/Light Mode Supported")
 
     # --- Header ---
     st.markdown('<div class="main-title">🎓 教育大數據：學習黃金窗口</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">24H Learning Consolidation Analytics Dashboard</div>', unsafe_allow_html=True)
 
-    # --- 【修改點 2】設定固定路徑並檢查 ---
-    FILE_PATH = 'https://github.com/333team/Big-Data-Analysis/blob/6f896eb539f65c08bbb1f6083a4e27ffaa25ff72/resource/anonymized_file0115.csv'
+    # --- 【關鍵修改】適應 GitHub 部署的路徑設定 ---
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # 這裡假設您的資料夾結構是 app.py 與 resource 資料夾在同一層
+    FILE_PATH = os.path.join(current_dir, 'resource', 'anonymized_file0115.csv')
 
     if not os.path.exists(FILE_PATH):
-        st.error(f"❌ 找不到資料檔案：`{FILE_PATH}`")
-        st.warning("請確認檔案是否位於正確的 `../resource/` 目錄下。")
+        st.error(f"❌ 找不到資料檔案")
+        st.warning(f"系統嘗試讀取的路徑是： `{FILE_PATH}`")
+        st.info("請確認 GitHub 的資料夾結構是否為：\n- app.py\n- resource/\n  - anonymized_file0115.csv")
         return
 
-    # --- 讀取固定路徑檔案 ---
+    # --- 讀取檔案 ---
     df, median_score, stats = load_and_preprocess_data(FILE_PATH, enable_outlier_removal)
 
     if df is None: return
