@@ -139,14 +139,15 @@ def display_kpi_card(title, value, note, color_border="#4F8BF9"):
 
 
 # ==============================================================================
-# 1. 資料處理核心邏輯 (Cache 優化)
+# 1. 資料處理核心邏輯 (0-24H 高密度版)
 # ==============================================================================
 
-@st.cache_data(show_spinner="🚀 正在進行數據清洗與特徵工程...")
-def load_and_preprocess_data(uploaded_file, remove_outliers=False):
+@st.cache_data(show_spinner="🚀 正在讀取並分析固定路徑資料...")
+def load_and_preprocess_data(file_path, remove_outliers=False):
     stats = {}
     try:
-        df = pd.read_csv(uploaded_file)
+        # 直接讀取路徑
+        df = pd.read_csv(file_path)
         stats['original_count'] = len(df)
 
         col_start = '任務派發時間'
@@ -227,21 +228,28 @@ def main():
     # --- Sidebar ---
     with st.sidebar:
         st.title("控制台")
-        uploaded_file = st.file_uploader("📂 上傳 CSV 資料", type="csv")
+        # --- 【修改點 1】移除檔案上傳器，改為顯示資料狀態 ---
+        st.info("📂 資料來源：教育大數據競賽")
+
         st.markdown("### ⚙️ 參數設定")
         enable_outlier_removal = st.toggle("IQR 極端值過濾", value=True)
-        st.info("ℹ️ 分析範圍鎖定：0 ~ 24 小時")
-        st.caption("Auto Dark/Light Mode Supported")
+        st.info("ℹ️ 分析範圍：0 ~ 24 小時")
+
 
     # --- Header ---
     st.markdown('<div class="main-title">🎓 教育大數據：學習黃金窗口</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">24H Learning Consolidation Analytics Dashboard</div>', unsafe_allow_html=True)
 
-    if not uploaded_file:
-        st.info("👋 請先從左側面板上傳學習歷程資料以開始分析。")
+    # --- 【修改點 2】設定固定路徑並檢查 ---
+    FILE_PATH = '../resource/anonymized_file0115.csv'
+
+    if not os.path.exists(FILE_PATH):
+        st.error(f"❌ 找不到資料檔案：`{FILE_PATH}`")
+        st.warning("請確認檔案是否位於正確的 `../resource/` 目錄下。")
         return
 
-    df, median_score, stats = load_and_preprocess_data(uploaded_file, enable_outlier_removal)
+    # --- 讀取固定路徑檔案 ---
+    df, median_score, stats = load_and_preprocess_data(FILE_PATH, enable_outlier_removal)
 
     if df is None: return
 
@@ -290,12 +298,11 @@ def main():
                 </div>
                 """, unsafe_allow_html=True)
 
-    # Tab 2: 鞏固曲線 (修復跳頁問題)
+    # Tab 2: 鞏固曲線
     with tab2:
         st.subheader("📉 記憶鞏固趨勢分析")
         col_ctrl1, col_ctrl2 = st.columns([1, 3])
         with col_ctrl1:
-            # 【關鍵修復】加入唯一的 key
             y_opt = st.selectbox("分析指標 (Y軸)", [col_score, '擷取訊息正確率', '發展解釋正確率'], key="tab2_y_opt")
             split_diff = st.toggle("依難易度分層", value=True, key="tab2_diff_toggle")
 
@@ -331,7 +338,6 @@ def main():
         st.subheader("⏱️ 認知負荷 (答題時間) 分析")
         col_t1, col_t2 = st.columns([1, 3])
         with col_t1:
-            # 【關鍵修復】已存在的 key (保持不變)
             split_time_diff = st.toggle("依難易度分層", value=True, key="time_split")
 
         with col_t2:
@@ -385,8 +391,6 @@ def main():
             st.markdown("##### 2. 知識向度差異")
             candidate_cols = ['擷取訊息正確率', '發展解釋正確率', '廣泛理解正確率', '文本形式正確率', '文本理解正確率']
             valid_options = [c for c in candidate_cols if c in df.columns]
-
-            # 【關鍵修復】加入唯一的 key
             know_cols = st.multiselect("請選擇向度:", options=valid_options,
                                        default=[valid_options[0]] if valid_options else None, key="tab4_know_cols")
 
@@ -413,7 +417,6 @@ def main():
     with tab5:
         st.subheader("🤖 AI 學習風險預測模型")
 
-        # Callback 函數：避免按鈕點擊後重整頁面導致狀態遺失
         def train_model_callback():
             model_df = df.copy()
             le = LabelEncoder()
