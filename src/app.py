@@ -712,17 +712,36 @@ def main():
 
         def train_model_callback():
             model_df = df.copy()
-            le = LabelEncoder()
+            encoders = {}
+
+            # --- 1. 既有的特徵處理 ---
+            le_diff = LabelEncoder()
             if col_difficulty in model_df.columns:
-                model_df['diff_code'] = le.fit_transform(model_df[col_difficulty].astype(str))
+                model_df['diff_code'] = le_diff.fit_transform(model_df[col_difficulty].astype(str))
             else:
                 model_df['diff_code'] = 0
+            encoders['diff'] = le_diff
 
+            # --- 2. 新增特徵處理 (只保留年級) ---
+            extra_feats = []
+            if '年級' in model_df.columns:
+                le_grade = LabelEncoder()
+                model_df['grade_code'] = le_grade.fit_transform(model_df['年級'].astype(str))
+                encoders['grade'] = le_grade
+                extra_feats.append('grade_code')
+            else:
+                model_df['grade_code'] = 0
+                extra_feats.append('grade_code')
+
+            # --- 3. 計算 Target ---
             model_df['user_ability'] = model_df.groupby(col_user)[col_score].transform('mean')
             thresh = 80 if model_df[col_score].max() > 1.0 else 0.8
             model_df['target'] = np.where(model_df[col_score] < thresh, 1, 0)
 
-            feats = ['lag_hours', 'diff_code', 'user_ability', col_duration]
+            # --- 4. 整合所有特徵 ---
+            # 特徵順序：[延遲, 難度, 程度, 耗時, 年級]
+            feats = ['lag_hours', 'diff_code', 'user_ability', col_duration] + extra_feats
+
             model_df = model_df.dropna(subset=feats)
             X = model_df[feats]
             y = model_df['target']
@@ -734,13 +753,13 @@ def main():
                 y_pred = clf.predict(X_test)
 
                 st.session_state['trained_model'] = clf
-                st.session_state['label_encoder'] = le
+                st.session_state['encoders'] = encoders
                 st.session_state['model_features'] = feats
                 st.session_state['accuracy'] = accuracy_score(y_test, y_pred)
                 st.session_state['y_test'] = y_test
                 st.session_state['y_pred'] = y_pred
             else:
-                st.error("樣本不足")
+                st.error("樣本不足 (需大於50筆)")
 
         col_train_btn, _ = st.columns([1, 4])
         with col_train_btn:
@@ -755,17 +774,27 @@ def main():
 
             with col_plot1:
                 st.markdown("##### 🔑 影響因子權重")
-                name_mapping = {'lag_hours': '練習延遲時間', 'diff_code': '任務難易度', 'user_ability': '學生程度',
-                                col_duration: '答題耗時'}
+
+                name_mapping = {
+                    'lag_hours': '練習延遲',
+                    'diff_code': '任務難度',
+                    'user_ability': '學生程度',
+                    col_duration: '答題耗時',
+                    'grade_code': '年級'
+                }
+
                 imp = pd.Series(clf.feature_importances_, index=feats).sort_values()
                 imp.index = [name_mapping.get(x, x) for x in imp.index]
 
-                fig_imp, ax_imp = create_glass_figure(figsize=(6, 4))
+                # =========== 忽略第二名邏輯 ===========
+                if len(imp) >= 2:
+                    drop_label = imp.index[-2]  # 移除倒數第二個 (即第二高分)
+                    imp = imp.drop(drop_label)
+                # ====================================
 
-                # Barh color
+                fig_imp, ax_imp = create_glass_figure(figsize=(6, 4))
                 imp.plot(kind='barh', ax=ax_imp, color='#00f2fe', width=0.7)
 
-                # 調整 y 軸標籤顏色
                 if MY_FONT:
                     ax_imp.set_yticklabels(imp.index, fontproperties=MY_FONT, fontsize=11, color='white')
                     ax_imp.set_xlabel("Importance", fontproperties=MY_FONT, color='white')
@@ -804,29 +833,56 @@ def main():
             st.divider()
             st.subheader("🔮 單一學生即時診斷")
             with st.container():
-                # 這裡可以改用 st.container 本身，不需要外包 HTML
-                c1, c2, c3, c4 = st.columns(4)
-                with c1:
-                    in_lag = st.number_input("練習延遲 (H)", 0.0, 24.0, 2.0, 0.5)
-                with c2:
+                # 上排 3 個輸入
+                r1_c1, r1_c2, r1_c3 = st.columns(3)
+                # 下排 2 個輸入
+                r2_c1, r2_c2 = st.columns(2)
+
+                with r1_c1:
+                    in_lag = st.number_input("練習延遲 (H)", 0.0, 72.0, 2.0, 0.5)
+                with r1_c2:
                     diff_opts = sorted(df[col_difficulty].astype(str).unique()) if col_difficulty in df.columns else [
                         "未知"]
-                    idx = diff_opts.index('中') if '中' in diff_opts else 0
-                    in_diff = st.selectbox("題目難度", diff_opts, index=idx)
-                with c3:
+                    idx_diff = diff_opts.index('中') if '中' in diff_opts else 0
+                    in_diff = st.selectbox("題目難度", diff_opts, index=idx_diff)
+                with r1_c3:
                     s_max = df[col_score].max()
-                    in_ability = st.slider("學生程度", 0, 100, 80) if s_max > 1.0 else st.slider("學生程度", 0.0, 1.0,
-                                                                                                 0.8)
-                with c4:
-                    in_duration = st.number_input("耗時 (秒)", 1, 600, 60)
+                    if s_max > 1.0:
+                        in_ability = st.slider("學生程度 (均分)", 0, 100, 80)
+                    else:
+                        in_ability = st.slider("學生程度 (均分)", 0.0, 1.0, 0.8)
 
-                if st.button("🔍 診斷", type="primary", use_container_width=True):
-                    try:
-                        d_val = st.session_state['label_encoder'].transform([str(in_diff)])[0] if st.session_state[
-                            'label_encoder'] else 0
-                    except:
-                        d_val = 0
-                    prob = clf.predict_proba([[in_lag, d_val, in_ability, in_duration]])[0][1]
+                with r2_c1:
+                    in_duration = st.number_input("耗時 (秒)", 1, 1200, 60)
+                with r2_c2:
+                    # 新增：年級選擇
+                    grad_opts = sorted(df['年級'].astype(str).unique()) if '年級' in df.columns else ['未知']
+                    in_grade = st.selectbox("年級", grad_opts)
+
+                if st.button("🔍 診斷風險", type="primary", use_container_width=True):
+                    encoders = st.session_state.get('encoders', {})
+
+                    def get_code(enc_key, val):
+                        if enc_key in encoders:
+                            try:
+                                return encoders[enc_key].transform([str(val)])[0]
+                            except:
+                                return 0
+                        return 0
+
+                    val_diff = get_code('diff', in_diff)
+                    val_grade = get_code('grade', in_grade)
+
+                    # 輸入向量順序：['lag_hours', 'diff_code', 'user_ability', col_duration, 'grade_code']
+                    input_data = [[
+                        in_lag,
+                        val_diff,
+                        in_ability,
+                        in_duration,
+                        val_grade
+                    ]]
+
+                    prob = clf.predict_proba(input_data)[0][1]
 
                     if prob > 0.5:
                         st.markdown(
